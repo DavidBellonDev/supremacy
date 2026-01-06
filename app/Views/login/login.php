@@ -44,7 +44,6 @@
             </div>
         </div>
     </div>
-<script src="<?= base_url('js/login.js') ?>"></script>
+    <script src="<?= base_url('js/login.js') ?>"></script>
 </body>
-
 </html>

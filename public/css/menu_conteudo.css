@@ -1,0 +1,13 @@
+ body {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    min-height: 100vh; /* ocupa toda a altura da tela */
+}
+
+.conteudo {
+    background: #37393aff;
+    color: white;
+}

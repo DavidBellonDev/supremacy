@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?= base_url('css/menu_conteudo.css') ?>">
     <link rel="icon" type="image/svg+xml" href="img/icon.svg">
-    <title>Produtos</title>
+    <title>Pedidos</title>
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables Bootstrap 5 -->
     <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
 </head>
 <body>
     <div class="container-fluid">
@@ -24,10 +23,10 @@
             <main class="col-md-9 col-lg-10 p-4 conteudo">
                 <div class="row mb-4">
                     <div class="col-9">
-                        <h3>Produtos</h3>
+                        <h3>Pedidos</h3>
                     </div>
                     <div class="col-3">
-                        <button id="novoProduto" class="form-control btn btn-danger">Novo Produto</button>
+                        <button id="novoPedido" class="form-control btn btn-danger">Novo Pedido</button>
                     </div>
                 </div>
                     <table id="example" class="table text-light" >
@@ -68,6 +67,6 @@
             });
         });
     </script>
-    <script src="<?= base_url('js/produtos.js') ?>"></script>
+    <script src="<?= base_url('js/pedidos.js') ?>"></script>
 </body>
 </html>

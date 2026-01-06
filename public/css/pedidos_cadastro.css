@@ -1,0 +1,7 @@
+
+/*Configuração das abas (Principal e Itens)*/
+.nav-tabs .nav-link.active {
+    background-color: #212529 !important; /* fundo */
+    color: #fff!important;               /* texto branco */
+    border-color: #fff !important;  /* bordas */
+}

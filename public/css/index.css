@@ -1,0 +1,57 @@
+
+/**Definindo a altura das imagens do carrossel */
+.carousel-item img {
+    object-fit: cover;
+    height: 90vh;
+}
+
+.sombra-caixa {
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    padding: 5px; /* Espaço entre a imagem e a sombra */
+    background-color: #fff; /* Fundo visível se tiver padding */
+}
+.contorno {
+    border: 3px solid #fff; /* largura, estilo e cor */
+    border-radius: 20px;     /* opcional: cantos arredondados */
+}
+
+.bg-carousel {
+    overflow: hidden;
+}
+
+.bg-carousel .carousel,
+.bg-carousel .carousel-inner,
+.bg-carousel .carousel-item {
+    height: 100%;
+}
+
+.bg-img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+/* Overlay escuro */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55); /* intensidade da sombra */
+    z-index: 2;
+}
+
+/* Conteúdo */
+.content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+}
+
+/*Scroll da ancora*/
+html {
+    scroll-behavior: smooth;
+}

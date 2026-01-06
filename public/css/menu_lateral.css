@@ -1,0 +1,21 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(
+        135deg,
+        #37b0e7ff,
+        #652de9ff,
+        #55f735ff,
+        #f32b2bff
+    );
+    background-size: 300% 300%;
+    animation: gradientMove 10s ease infinite;
+}
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}

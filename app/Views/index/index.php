@@ -5,67 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="icon" type="image/svg+xml" href="img/icon.svg">
+        <link rel="stylesheet" href="<?= base_url('css/index.css') ?>">
     <title>Supremacy</title>
-
-    <style>
-    /**Definindo a altura das imagens do carrossel */
-    .carousel-item img {
-        object-fit: cover;
-        height: 90vh;
-    }
-
-    .sombra-caixa {
-        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
-        padding: 5px; /* Espaço entre a imagem e a sombra */
-        background-color: #fff; /* Fundo visível se tiver padding */
-        }
-    .contorno {
-        border: 3px solid #fff; /* largura, estilo e cor */
-        border-radius: 20px;     /* opcional: cantos arredondados */
-    }
-
-    .bg-carousel {
-        overflow: hidden;
-    }
-
-    .bg-carousel .carousel,
-    .bg-carousel .carousel-inner,
-    .bg-carousel .carousel-item {
-        height: 100%;
-    }
-
-    .bg-img {
-        object-fit: cover;
-        height: 100%;
-        width: 100%;
-    }
-
-    /* Overlay escuro */
-    .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.55); /* intensidade da sombra */
-        z-index: 2;
-    }
-
-    /* Conteúdo */
-    .content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
-    }
-
-    /*Scroll da ancora*/
-    html {
-        scroll-behavior: smooth;
-    }
-    </style>
-
 </head>
 <body class="bg-dark">
     <nav class="navbar navbar-dark bg-dark navbar-expand-lg fixed-top">
@@ -263,8 +204,7 @@
         </div>
     </footer>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
