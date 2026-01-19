@@ -1,0 +1,10 @@
+.dataTables_wrapper .pagination .page-item.active .page-link,
+.dataTables_wrapper .pagination .page-link:hover {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+    color: #fff;
+}
+
+.dataTables_wrapper .pagination .page-link {
+    color: var(--bs-danger);
+}

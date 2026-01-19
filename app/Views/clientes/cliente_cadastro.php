@@ -24,67 +24,83 @@
                         <h3>Cliente</h3>
                     </div>
                     <div class="col-3">
-                         <button class="form-control btn btn-danger">Salvar Cliente</button>
+                         <button id="salvarCliente" class="form-control btn btn-danger">Salvar Cliente</button>
                     </div>
                 </div>
-                <?= form_open('clientes/cadastrar', ['id' => 'form'], ['id' => "1" ]) ?>
+                <?= form_open('clientes/salvar', ['id' => 'formCliente']) ?>
                     <?= csrf_field() ?>
+                        <?php if (!empty($cliente)): ?>
+                            <input type="hidden" name="id" value="<?= $cliente->id ?>">
+                        <?php endif; ?>
+                        <input type="text" name="id_empresa" value="1" hidden>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="nome" class="form-control-label">Nome</label>
-                                <input type="text" name="nome" id="nome" placeholder="Nome" class="form-control" >
+                                <input type="text" name="nome" id="nome" placeholder="Nome" class="form-control" value="<?= $cliente->nome ?? '' ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="cpf" class="form-control-label">CPF</label>
-                                <input type="text" name="cpf" id="cpf" placeholder="CPF" class="form-control" >
+                                <input type="text" name="cpf" id="cpf" placeholder="CPF" class="form-control" 
+                                value="<?=  $cliente->cpf ?? '' ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="cnpj" class="form-control-label">CNPJ</label>
-                                <input type="text" name="cnpj" id="cnpj" placeholder="CNPJ" class="form-control" >
+                                <input type="text" name="cnpj" id="cnpj" placeholder="CNPJ" class="form-control" value="<?= $cliente->cnpj ?? '' ?>">
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="form-group col-md-4">
                                 <label for="endereco" class="form-control-label">Endereço</label>
-                                <input type="text" name="endereco" id="endereco" placeholder="Endereço" class="form-control" >
+                                <input type="text" name="endereco" id="endereco" placeholder="Endereço" class="form-control" value="<?= $cliente->endereco ?? '' ?>">
                             </div>
                             <div class="form-group col-md-1">
                                 <label for="numero" class="form-control-label">Número</label>
-                                <input type="text" name="numero" id="numero" placeholder="N°" class="form-control" >
+                                <input type="text" name="numero" id="numero" placeholder="N°" class="form-control" value="<?= $cliente->numero ?? '' ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="complemento" class="form-control-label">Complemento</label>
-                                <input type="text" name="complemento" id="complemento" placeholder="Complemento" class="form-control" >
+                                <input type="text" name="complemento" id="complemento" placeholder="Complemento" class="form-control" value="<?= $cliente->complemento ?? '' ?>">
                             </div>
                             <div class="form-group col-md-2">
                                 <label for="cidade" class="form-control-label">Cidade</label>
-                                <input type="text" name="cidade" id="cidade" placeholder="Cidade" class="form-control" >
+                                <input type="text" name="cidade" id="cidade" placeholder="Cidade" class="form-control" value="<?= $cliente->cidade ?? '' ?>">
                             </div>
                             <div class="form-group col-md-2">
                                 <label for="estado" class="form-control-label">Estado</label>
-                                <input type="text" name="estado" id="estado" placeholder="Estado" class="form-control" >
+                                <select name="estado" id="estado" class="form-select">
+                                    <option value=""></option>
+                                    <?php foreach ($estados as $sigla => $estado): ?>
+                                        <option value="<?= $sigla ?>" <?= ($cliente->estado ?? '') === $sigla ? 'selected' : '' ?>><?= $estado ?></option>
+                                    <?php endforeach; ?>    
+                                </select>
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="form-group col-md-3">
                                 <label for="cep" class="form-control-label">CEP</label>
-                                <input type="text" name="cep" id="cep" placeholder="CEP" class="form-control" >
+                                <input type="text" name="cep" id="cep" placeholder="CEP" class="form-control" value="<?= $cliente->cep ?? '' ?>">
                             </div>
                             <div class="form-group col-md-2">
                                 <label for="telefone" class="form-control-label">Telefone</label>
-                                <input type="text" name="telefone" id="telefone" placeholder="Telefone" class="form-control" >
+                                <input type="text" name="telefone" id="telefone" placeholder="Telefone" class="form-control" value="<?= $cliente->telefone ?? '' ?>" >
                             </div>
                             <div class="form-group col-md-2">
                                 <label for="celular" class="form-control-label">Celular</label>
-                                <input type="text" name="celular" id="celular" placeholder="Celular" class="form-control" >
+                                <input type="text" name="celular" id="celular" placeholder="Celular" class="form-control" value="<?= $cliente->celular ?? '' ?>">
                             </div>
                             <div class="form-group col-md-2">
                                 <label for="rg" class="form-control-label">RG</label>
-                                <input type="text" name="rg" id="rg" placeholder="RG" class="form-control" >
+                                <input type="text" name="rg" id="rg" placeholder="RG" class="form-control" value="<?= $cliente->rg ?? '' ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="email" class="form-control-label">E-mail</label>
-                                <input type="text" name="email" id="email" placeholder="Email" class="form-control" >
+                                <input type="text" name="email" id="email" placeholder="Email" class="form-control" value="<?= $cliente->email ?? '' ?>" >
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" value="1" <?= (isset($cliente) && $cliente->ativo) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="ativo">Cliente Ativo?</label>
                             </div>
                         </div>
                 <?= form_close(); ?>
@@ -94,5 +110,10 @@
     
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Mascaras -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<?= base_url('js/cliente_cadastro.js') ?>"></script> <!-- Js Cadastro de Clientes -->
 </body>
 </html>

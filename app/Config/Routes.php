@@ -11,8 +11,13 @@ $routes->get('/cadastre_se', 'Index::cadastre_se');
 $routes->get('/home', 'Home::home');
 
 $routes->get('/clientes', 'Clientes::clientes');
-$routes->get('/clientes/clientes_cadastro', 'Clientes::clientes_cadastro');
-$routes->get('/clientes/cadastrar', 'Clientes::cadastrar');
+$routes->get('/clientes/clientes_cadastro/(:num)', 'Clientes::clientes_cadastro/$1');
+//$routes->get('/clientes/cadastrar/(:num)', 'Clientes::cadastrar/$1');
+$routes->post('/clientes/salvar', 'Clientes::salvar');
+$routes->get('/clientes/listar', 'Clientes::listar');
+$routes->delete('/clientes/excluir/(:num)', 'Clientes::excluir/$1');
+$routes->get('/clientes/restaurar/(:num)', 'Clientes::restaurarClienteExcluido/$1');
+//$routes->get('clientes/cadastro/(:num)', 'Clientes::cadastro/$1');
 
 $routes->get('/pedidos', 'Pedidos::pedidos');
 $routes->get('/pedidos/pedidos_cadastro', 'Pedidos::pedidos_cadastro');
