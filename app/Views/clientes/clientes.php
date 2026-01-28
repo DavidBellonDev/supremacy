@@ -32,19 +32,18 @@
                         <button id="novoCliente" class="form-control btn btn-danger">Novo Cliente</button>
                     </div>
                 </div>
-                    <table id="listaClientes" class="col-md-6 col-sm-4 table text-light">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>CPF/CNPJ</th>
-                                <th>Email</th>
-                                <th>Ativo</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
+                <table id="listaClientes" class="col-md-6 col-sm-4 table text-light">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF/CNPJ</th>
+                            <th>Email</th>
+                            <th>Ativo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                    </tbody>
                 </table>
             </main>
         </div>
@@ -66,8 +65,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
-
 
     <script>
         $(document).ready(function () {
@@ -94,7 +91,7 @@
                                 ? '<i class="bi bi-check-circle-fill text-success fs-5" data-export="Sim" title="Ativo"></i>'
                                 : '<i class="bi bi-x-circle-fill text-danger fs-5" data-export="Não" title="Inativo"></i>';
                         }
-                     },
+                    },
                     {data: 'id',
                         render: function (data, type, row) {
                             return `

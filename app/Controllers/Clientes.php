@@ -13,7 +13,6 @@ class Clientes extends BaseController{
         $this->clienteModel = new \App\Models\ClienteModel();
     }
 
-
     public function clientes(): string {
         return view('clientes/clientes');
     }
@@ -44,7 +43,6 @@ class Clientes extends BaseController{
         return view('clientes/cliente_cadastro', ['cliente' => $cliente, 'estados' => $estados]);
     }
     
-
     //Função para Salvar o cliente no Banco de Dados
     public function salvar(){
         $clienteModel = new ClienteModel();
@@ -156,6 +154,37 @@ class Clientes extends BaseController{
         return $this->response->setJSON($data);
     }
 
-}
+    //Função para buscar os dados do cliente no pedido
+    public function buscar_pedido(){
+        $term = $this->request->getGet('term');
 
+        //Se o termo digitado for menor que 2 caracteres não mostra nada
+        if (!$term || strlen($term) < 2) {
+            return $this->response->setJSON([]);
+        }
+
+        $model = new ClienteModel();
+
+        $clientes = $model->groupStart()->like('nome', $term)->orLike('cpf', $term)->groupEnd()->orderBy('nome', 'ASC')->limit(10)->find();
+
+        $result = [];
+
+        foreach ($clientes as $cliente) {
+            $result[] = [
+                'label' => $cliente->nome . ' - ' . $cliente->cpf,
+                'value' => $cliente->nome,
+                'id'    => $cliente->id,
+                'cpf'    => $cliente->cpf,
+                'cnpj'    => $cliente->cnpj,
+                'endereco' => $cliente->endereco,
+                'numero' => $cliente->numero,
+                'complemento' => $cliente->complemento,
+                'cidade' => $cliente->cidade,
+                'estado' => $cliente->estado,
+            ];
+        }
+
+        return $this->response->setJSON($result);
+    }
+}
 ?>

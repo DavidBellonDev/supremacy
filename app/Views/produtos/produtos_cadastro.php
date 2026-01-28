@@ -24,55 +24,71 @@
                         <h3>Produto</h3>
                     </div>
                     <div class="col-3">
-                         <button class="form-control btn btn-danger">Salvar Produto</button>
+                         <button id="salvarProduto" class="form-control btn btn-danger">Salvar Produto</button>
                     </div>
                 </div>
-                <?= form_open('produtos/cadastrar', ['id' => 'form'], ['id' => "1" ]) ?>
+                <?= form_open('produtos/salvar', ['id' => 'formProduto']) ?>
                     <?= csrf_field() ?>
+                        <?php if(!empty($produto)): ?>
+                            <input type="hidden" name="id" value="<?= $produto->id ?>">
+                        <?php endif; ?>    
+                        <input type="text" name="id_empresa" value="1" hidden>
                         <div class="row">
                             <div class="form-group col-md-3">
                                 <label for="codigo" class="form-control-label">Código</label>
-                                <input type="text" name="codigo" id="codigo" placeholder="Código" class="form-control" >
+                                <input type="text" name="codigo" id="codigo" placeholder="Código" class="form-control" value="<?= $produto->codigo ?? '' ?>" >
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="descricao" class="form-control-label">Descrição</label>
-                                <input type="text" name="descricao" id="descricao" placeholder="Descrição" class="form-control" >
+                                <input type="text" name="descricao" id="descricao" placeholder="Descrição" class="form-control" value="<?= $produto->descricao ?? '' ?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="preco" class="form-control-label">Preço</label>
-                                <input type="text" name="preco" id="preco" placeholder="Preço" class="form-control" >
+                                <input type="text" name="preco" id="preco" placeholder="Preço" class="form-control money" inputmode="numeric" value="<?= $preco ?? ''?>">
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="form-group col-12">
                                 <label for="desc_adicional" class="form-control-label">Descrição Adicional</label>
                                 <div class="input-group">
-                                    <textarea class="form-control" placeholder="Descrição Adicional" aria-label="With textarea"></textarea>
+                                    <textarea class="form-control" name="descricao_adicional" id="descricao_adicional"  placeholder="Descrição Adicional" aria-label="With textarea"><?= esc($produto->descricao_adicional ?? '')?></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="form-group col-md-3">
                                 <label for="estoque_minimo" class="form-control-label">Estoque Mínimo</label>
-                                <input type="text" name="estoque_minimo" id="estoque_minimo" placeholder="Estoque Mínimo" class="form-control" >
+                                <input type="text" name="estoque_minimo" id="estoque_minimo" placeholder="Estoque Mínimo" class="form-control estoque" value="<?= $estoque_minimo  ?? ''?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="estoque_atual" class="form-control-label">Estoque Atual</label>
-                                <input type="text" name="estoque_atual" id="estoque_atual" placeholder="Estoque Atual" class="form-control" >
+                                <input type="text" name="estoque_atual" id="estoque_atual" placeholder="Estoque Atual" class="form-control estoque" value="<?= $estoque_atual  ?? ''?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="unidade" class="form-control-label">Unidade</label>
-                                <input type="text" name="unidade" id="unidade" placeholder="Unidade" class="form-control" >
+                                <select name="unidade" id="unidade" class="form-select">
+                                    <option value=""></option>
+                                    <?php foreach ($unidades as $un => $unidade): ?>
+                                        <option value="<?= $un ?>" <?= ($produto->unidade ?? '') === $un ? 'selected' : '' ?>><?= $unidade ?></option>
+                                    <?php endforeach; ?>    
+                                </select>
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="custo" class="form-control-label">Custo</label>
-                                <input type="text" name="custo" id="custo" placeholder="Custo" class="form-control" >
+                                <input type="text" name="custo" id="custo" placeholder="Custo" class="form-control money" value="<?= $custo ?? ''?>">
                             </div>
                         </div>
                         <div class="row mt-3">
                             <div class="form-group col-12">
                                 <label for="observacao" class="form-control-label">Observação</label>
-                                <input type="text" name="observacao" id="observacao" placeholder="Observação" class="form-control">
+                                <input type="text" name="observacao" id="observacao" placeholder="Observação" class="form-control" value="<?= $produto->observacao  ?? ''?>">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="form-check">
+                                <input type="hidden" name="ativo" value="0">
+                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" <?= (isset($produto) && $produto->ativo) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="ativo">Produto Ativo?</label>
                             </div>
                         </div>
                 <?= form_close(); ?>
@@ -82,5 +98,11 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Mascara Monetaria -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="<?= base_url('js/mascaras.js') ?>"></script> <!-- Js de Mascaras diversas -->
+    <script src="<?= base_url('js/produto_cadastro.js') ?>"></script> <!-- Js Cadastro de Produtos -->
 </body>
 </html>

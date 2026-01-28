@@ -99,6 +99,7 @@
                         </div>
                         <div class="row mt-3">
                             <div class="form-check">
+                                <input type="hidden" name="ativo" value="0">
                                 <input class="form-check-input" type="checkbox" id="ativo" name="ativo" value="1" <?= (isset($cliente) && $cliente->ativo) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="ativo">Cliente Ativo?</label>
                             </div>
