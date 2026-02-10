@@ -36,7 +36,6 @@ class ClienteModel extends Model
     ];
     protected $validationMessages   = [
         'nome' => ['required' => 'O campo Nome é obrigatório', ],
-
     ];
 
     //Converter CPF ou CNPJ em Null

@@ -31,6 +31,12 @@ $routes->post('/pedidos/salvar', 'Pedidos::salvar');
 $routes->get('/pedidos/listar', 'Pedidos::listar');
 $routes->delete('/pedidos/excluir/(:num)', 'Pedidos::excluir/$1');
 
+//Itens
+$routes->post('/itens/salvar', 'Itens::salvar');
+$routes->get('/itens/listar/(:num)', 'Itens::listar/$1');
+$routes->get('/itens/buscar_itens_pedido', 'Itens::buscar_itens_pedido');
+$routes->delete('/itens/excluir/(:num)', 'Itens::excluir/$1');
+
 //Produtos
 $routes->get('/produtos', 'Produtos::produtos');
 $routes->get('/produtos/produtos_cadastro/(:num)', 'Produtos::produtos_cadastro/$1');

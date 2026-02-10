@@ -11,9 +11,11 @@ class Pedidos extends BaseController{
     }
 
     private $pedidoModel;
+    private $itemModel;
 
     public function __construct(){
         $this->pedidoModel = new \App\Models\PedidoModel();
+        $this->itemModel = new \App\Models\ItemModel();
     }
 
     public function pedidos_cadastro(int $id = null) {
@@ -29,7 +31,13 @@ class Pedidos extends BaseController{
         $total = number_format((float) $pedido->total, 2, ',', '.');
         $desconto = number_format((float) $pedido->desconto, 2, ',', '.');
 
-        return view('pedidos/pedidos_cadastro', ['pedido' => $pedido, 'status' => $status, 'aba_ativa' => 'principal', 'total' => $total, 'desconto' => $desconto]);
+        //Total dos itens
+        $resultado = $this->itemModel
+            ->selectSum('total', 'totalItens')
+            ->where('id_pedido', $id)
+            ->first();
+
+        return view('pedidos/pedidos_cadastro', ['pedido' => $pedido, 'status' => $status, 'aba_ativa' => 'principal', 'total' => $total, 'desconto' => $desconto, 'total_itens' => $resultado?->totalItens]);
     }
 
     //Função para Salvar o Pedido
