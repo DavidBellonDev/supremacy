@@ -19,22 +19,27 @@
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-10 mt-3">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text"> <i class="bi bi-person-fill"></i></span>
-                            <input type="text" class="form-control" placeholder="Usuário">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" class="form-control" placeholder="Senha">
-                        </div>
+                        <?= form_open('/logar', ['id' => 'formLogar']) ?>
+                            <?= csrf_field() ?>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"> <i class="bi bi-person-fill"></i></span>
+                                <input type="text" class="form-control" name="usuario" placeholder="Usuário" required>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" class="form-control" name="senha" placeholder="Senha" required>
+                            </div>
+                        <?= form_close() ?>  
                         <div class="text-end">
-                            <a href="#" class="text-decoration-none text-secondary fw-semibold mb-3">Esqueci minha senha</a>
+                            <a href="esqueci_senha" class="text-decoration-none text-secondary fw-semibold mb-3">Esqueci minha senha</a>
                         </div>
                         <div class="mt-3">
                             <button id="btnLogin" class="form-control btn-danger">Login</button>
                         </div>
                         <div class="text-center mt-3 mb-3">
-                            <a href="cadastre_se" class="text-decoration-none text-secondary fw-semibold">Cadastre-se</a>
+                            <a href="cadastre_se" class="text-decoration-none text-secondary fw-semibold">Cadastrar Usuário</a>
+                            <label> | </label>
+                            <a href="cadastre_empresa" class="text-decoration-none text-secondary fw-semibold">Cadastrar Empresa</a>
                         </div>
                         <div class="text-center mt-3 mb-3">
                             <a href="/" class="text-decoration-none text-secondary fw-semibold">Supremacy.com.br</a>
@@ -44,6 +49,12 @@
             </div>
         </div>
     </div>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Mascaras -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= base_url('js/login.js') ?>"></script>
 </body>
 </html>

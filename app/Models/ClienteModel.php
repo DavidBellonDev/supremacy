@@ -29,13 +29,28 @@ class ClienteModel extends Model
         'id' => 'permit_empty|is_natural_no_zero',
         'id_empresa'=> 'required|is_natural_no_zero',
         'nome' => 'required|max_length[150]',
-        'cpf'   => 'permit_empty|exact_length[11]',
-        'cnpj'  => 'permit_empty|exact_length[14]',
+        'cpf'   => 'permit_empty|exact_length[11]|is_unique[clientes.cpf,id,{id}]',
+        'cnpj'  => 'permit_empty|exact_length[14]|is_unique[clientes.cnpj,id,{id}]',
         'email' => 'permit_empty|valid_email|max_length[100]',
 
     ];
+
     protected $validationMessages   = [
-        'nome' => ['required' => 'O campo Nome é obrigatório', ],
+        'nome' => [
+            'required' => 'O campo Nome é obrigatório', 
+            'max_length' => 'Limite de 150 caracteres'
+        ],
+        'cpf' => [
+            'is_unique' => 'Já existe um cadastrado com esse CPF ',
+            'exact_length' => 'Informe um CPF válido'
+        ],
+        'cnpj' => [
+            'is_unique' => 'Já existe um cadastrado com esse CNPJ',
+            'exact_length' => 'Informe um CNPJ válido'
+        ],
+        'email' => [
+            'valid_email' => 'Informe um email válido',
+        ],
     ];
 
     //Converter CPF ou CNPJ em Null

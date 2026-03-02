@@ -1,9 +1,11 @@
 <?php
 
 namespace app\Controllers;
-
 use App\Controllers\BaseController;
 use App\Models\ClienteModel;
+use App\Services\ClienteService;
+use App\Exceptions\ValidationException;
+use DomainException;
 
 class Clientes extends BaseController{
 
@@ -23,80 +25,75 @@ class Clientes extends BaseController{
             'CE' => 'Ceará', 'DF' => 'Distrito Federal', 'ES' => 'Espírito Santo', 'GO' => 'Goiás', 'MA' => 'Maranhão', 'MT' => 'Mato Grosso', 'MS' => 'Mato Grosso do Sul', 'MG' => 'Minas Gerais', 'PA' => 'Pará', 'PB' => 'Paraíba', 'PR' => 'Paraná', 'PE' => 'Pernambuco', 'PI' => 'Piauí', 'RJ' => 'Rio de Janeiro', 'RN' => 'Rio Grande do Norte', 'RS' => 'Rio Grande do Sul', 'RO' => 'Rondônia', 'RR' => 'Roraima', 'SC' => 'Santa Catarina', 'SP' => 'São Paulo', 'SE' => 'Sergipe', 'TO' => 'Tocantins', 'EX' => 'Exterior'
         ];
 
+        //Se não vier id, é cadastro de cliente novo
         if($id === null || $id === 0){
             return view('clientes/cliente_cadastro', ['estados' => $estados]);
         }
-        
-        $cliente = $this->clienteModel->find($id);
-        
-        if(!$cliente){
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'   => 'error',
-                    'mensagem' => 'Cliente não encontrado'
-                ]);
-            }
 
-            // Se for acesso direto pela URL, mostra uma página de erro
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Cliente não encontrado");
+        try{
+            //Validar id
+            $service = new ClienteService();
+            $cliente = $service->clientes_cadastro($id, session()->get('id_empresa'));
+            
+            return view('clientes/cliente_cadastro', ['cliente' => $cliente, 'estados' => $estados]);
+        }catch(\DomainException $e){
+            //Envia para página padrão 'Não encontrada'
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }catch (\Throwable $e) { //Erro inesperado...
+            log_message('error', json_encode(['acao' => 'Clientes Cadastro', 'cliente_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
+            ]);
         }
-        return view('clientes/cliente_cadastro', ['cliente' => $cliente, 'estados' => $estados]);
     }
     
     //Função para Salvar o cliente no Banco de Dados
     public function salvar(){
-        $clienteModel = new ClienteModel();
         $data = $this->request->getPost();
-        $id = $this->request->getPost('id'); //Pega apenas o Id do formulário enviado
-        $cpf = $this->request->getPost('cpf'); //Pega apenas o CPF do formulário enviado
+        try{
+            $service = new ClienteService();
+            $retorno = $service->salvar($data, session()->get('id_empresa'));
 
-        if(empty($id)){ //Novo cliente
-
-            //Verifica se existe um cliente com esse CPF, mesmo excluído
-            $clienteExistente = $this->clienteModel->withDeleted()->where('cpf', $cpf)->first(); 
-
-            //Se existe...
-            if ($clienteExistente) {
-                if ($clienteExistente->deletado_em !== null) { //Se ele está excluído atualmente...
-                    return $this->response->setJSON([ //Daremos opção de restaurar
-                        'status'   => 'restore',
-                        'mensagem' => 'Esse CPF já existe e está excluído. Deseja restaurar o cadastro?',
-                        'id'       => $clienteExistente->id
-                    ]);
-                }
-                //Existe um cliente ativo com esse CPF
-                return $this->response->setJSON([
-                    'status'   => 'error',
-                    'errors' => ['cpf' => 'Já existe um cliente ativo com esse CPF.']
+            if(is_array($retorno) && $retorno['status'] === 'restore'){
+                return $this->response->setStatusCode(200)->setJSON([ //StatusCode 200 porque não há erro
+                    'status'   => 'restore',
+                    'mensagem' => 'Esse cliente já existe e está excluído. Deseja restaurar o cadastro?',
+                    'id'       => $retorno['id']
                 ]);
             }
-            $retorno = $clienteModel->insert($data);
-
-
-        }else { //Atualiza cliente
-            $retorno = $clienteModel->update($id, $data);
-        }
-
-        //Verifica se houve erros na validação
-        if($retorno === false){
-            //Retorna os erros de validação
-            return $this->response->setJSON([
+            return $this->response->setStatusCode(200)->setJSON([
+                'status' => 'success',
+                'mensagem' => 'Cliente salvo com sucesso!'
+            ]);
+        }catch (ValidationException $e) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'validation_error',
+                'errors' => $e->getErrors()
+            ]);
+        }catch(DomainException $e){ //Erro esperado
+            return $this->response->setStatusCode(404)->setJSON([
                 'status' => 'error',
-                'errors' => $clienteModel->errors()
+                'errors' => [
+                    '_global' => $e->getMessage()
+                ]
+            ]);
+        }catch (\Throwable $e) { //Erro inesperado...
+            log_message('error', json_encode(['acao' => 'Salvar Cliente', 'cliente_id' => $this->request->getPost('id'), 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
             ]);
         }
-        //Retorno com sucesso
-        return $this->response->setJSON([
-            'status' => 'success',
-            'mensagem' => 'Cliente salvo com sucesso!'
-        ]);
     }
 
     //Função para Listar os clientes salvos separando pela empresa a que pertencem 
     public function listar(){
-        $id_empresa = 1;
+        $id_empresa = session()->get('id_empresa'); //Pega o id_empresa da session
 
-        $atributos = ['id', 'id_empresa', 'cpf', 'cnpj', 'nome', 'email', 'ativo'];
+        $atributos = ['id', 'id_empresa', 'cpf', 'cnpj', 'nome', 'email', 'ativo']; //Dados enviados
 
         $clientes = $this->clienteModel->select($atributos)->where('id_empresa', $id_empresa)->withDeleted(false)->findAll();
         $data = [];
@@ -114,58 +111,60 @@ class Clientes extends BaseController{
 
     //Função para Excluir o cliente
     public function excluir(int $id = null){
-
-        $data = [];
-        if($id === null){
-            $data = [
-                'status' => 'error',
-                'mensagem' => 'Id do cliente não informado',
-            ];
-        }
-        //Informado o Id, então busca o cliente
-        $cliente = $this->clienteModel->find($id);
-
-        //Se não encontrar o cliente
-        if (!$cliente) {
-            $data = [
-                'status' => 'error',
-                'mensagem' => 'Cliente não encontrado',
-            ];
-        }
-
-        //Tudo certo, deletar cliente
-        $this->clienteModel->delete($id);
-        $data = [
+        try{
+            $service = new ClienteService();
+            $service->excluir($id, session()->get('id_empresa')); //Chamar método excluir do Service
+            return $this->response->setJSON([
                 'status' => 'success',
-                'mensagem' => 'Cliente excluído com sucesso',
-        ];
+                'mensagem' => 'Cliente excluído com sucesso!'
+            ]);
+        }catch(\DomainException $e){ //Erro esperado...
+            return $this->response->setStatusCode(404)->setJSON([
+                'status' => 'error',
+                'errors' => [
+                    '_global' => $e->getMessage()
+                ]
+            ]);
+        }catch (\Throwable $e) { //Erro inesperado...
+            log_message('error', json_encode(['acao' => 'Excluir Cliente', 'cliente_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
 
-        return $this->response->setJSON($data);
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
+            ]);
+        }
     }
 
-    //Função para restaurar um cliente excluido
+    //Função para restaurar um cliente excluido (Usando Service)
     public function restaurarClienteExcluido(int $id){
-        $this->clienteModel->update($id, ['deletado_em' => null]);
-
-        $data = [
-            'status'   => 'success',
-            'mensagem' => 'Cliente restaurado com sucesso!'
-        ];
-        return $this->response->setJSON($data);
+        try{
+            $service = new ClienteService();
+            $service->restaurar_cliente($id, session()->get('id_empresa'));
+            return $this->response->setJSON([
+                'status' => 'success',
+                'mensagem' => 'Cliente restaurado com sucesso'
+            ]);
+        }catch(\DomainException $e){
+            return $this->response->setStatusCode(404)->setJSON([
+                'status' => 'error',
+                'mensagem' => $e->getMessage()
+            ]);
+        }
     }
 
     //Função para buscar os dados do cliente no pedido
     public function buscar_pedido(){
         $term = $this->request->getGet('term');
+        $id_empresa = session()->get('id_empresa');
 
         //Se o termo digitado for menor que 2 caracteres não mostra nada
         if (!$term || strlen($term) < 2) {
             return $this->response->setJSON([]);
         }
 
-        $model = new ClienteModel();
+        $model = new ClienteModel(); //Carregar Model de Cliente
 
-        $clientes = $model->groupStart()->like('nome', $term)->orLike('cpf', $term)->groupEnd()->orderBy('nome', 'ASC')->limit(10)->find();
+        $clientes = $model->where('id_empresa', $id_empresa)->withDeleted(false)->groupStart()->like('nome', $term)->orLike('cpf', $term)->groupEnd()->orderBy('nome', 'ASC')->limit(10)->findAll();
 
         $result = [];
 
@@ -183,7 +182,6 @@ class Clientes extends BaseController{
                 'estado' => $cliente->estado,
             ];
         }
-
         return $this->response->setJSON($result);
     }
 }

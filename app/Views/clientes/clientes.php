@@ -106,7 +106,10 @@
                     }
                 ],
                 columnDefs: [
-                    { className: "text-center", targets: "_all" } // centraliza todas as colunas
+                    { className: "text-center", targets: "_all" }, // centraliza todas as colunas
+                    { targets: 0, // coluna "Nome"
+                      render: $.fn.dataTable.render.ellipsis(25) // Limite de 25 caract. na listagem
+                    }
                 ],
                 order: [[0, 'desc']],
                 language: {
@@ -157,6 +160,7 @@
             });
         });
     </script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.7/dataRender/ellipsis.js"></script>
     <script src="<?= base_url('js/clientes.js') ?>"></script> <!-- Js de Clientes -->
 
 </body>

@@ -11,24 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //Clique no botão Editar do cliente
     $('#listaClientes').on('click', '.editar', function () {
         let id = $(this).data('id');
-        $.ajax({
-            url: "/clientes/clientes_cadastro/" + id,
-            type: "GET",
-            dataType: "json",
-            success: function(response) {
-                if (response.status === 'error') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: response.mensagem
-                    });
-                }
-            },
-            error: function(xhr) {
-                // Se não for JSON, significa que retornou a view → redireciona
-                window.location.href = "/clientes/clientes_cadastro/" + id;
-            }
-        });
+        window.location.href = "/clientes/clientes_cadastro/" + id;
     });
 
     //Clique no botão Excluir do cliente
@@ -56,12 +39,20 @@ document.addEventListener('DOMContentLoaded', function () {
                             Swal.fire('Excluído!', response.mensagem, 'success');
                             // Recarrega os dados sem reload da página
                             $('#listaClientes').DataTable().ajax.reload(null, false); 
-                        }else {
-                            //Alert de erro
-                            Swal.fire('Erro!', response.mensagem, 'error');
                         }
                     },
-                    error: function () {
+                    error: function(xhr) {
+                        if (!xhr.responseJSON) {
+                            Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                            return;
+                        }
+                        const response = xhr.responseJSON;
+                         // Erro de Regra/Sistema
+                        if (response.errors && response.errors._global) {
+                            Swal.fire('Erro', response.errors._global, 'error');
+                            return;
+                        }
+
                         Swal.fire('Erro!', 'Não foi possível excluir o cliente.', 'error');
                     }
                 });

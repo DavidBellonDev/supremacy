@@ -19,35 +19,39 @@
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item">
                 <a href="<?= base_url('home') ?>" 
-                    class="nav-link text-white <?= service('uri')->getSegment(1) === 'home' ? 'active' : '' ?>">
+                    class="nav-link text-white movimento-btn <?= service('uri')->getSegment(1) === 'home' ? 'active' : '' ?>">
                     <i class="bi bi-house-door-fill"></i><span class="ms-2">Home</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="<?= base_url('clientes') ?>" 
-                    class="nav-link text-white <?= service('uri')->getSegment(1) === 'clientes' ? 'active' : '' ?>">
+                    class="nav-link text-white movimento-btn <?= service('uri')->getSegment(1) === 'clientes' ? 'active' : '' ?>">
                     <i class="bi bi-people-fill"></i><span class="ms-2">Clientes</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="<?= base_url('pedidos') ?>" 
-                    class="nav-link text-white <?= service('uri')->getSegment(1) === 'pedidos' ? 'active' : '' ?>">
+                    class="nav-link text-white movimento-btn <?= service('uri')->getSegment(1) === 'pedidos' ? 'active' : '' ?>">
                     <i class="bi bi-cart-plus-fill"></i><span class="ms-2">Pedidos</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="<?= base_url('produtos') ?>" 
-                    class="nav-link text-white <?= service('uri')->getSegment(1) === 'produtos' ? 'active' : '' ?>">
+                    class="nav-link text-white movimento-btn <?= service('uri')->getSegment(1) === 'produtos' ? 'active' : '' ?>">
                     <i class="bi bi-archive-fill"></i><span class="ms-2">Produtos</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="<?= base_url('configuracoes') ?>" 
-                    class="nav-link text-white <?= service('uri')->getSegment(1) === 'configuracoes' ? 'active' : '' ?>">
+                    class="nav-link text-white movimento-btn <?= service('uri')->getSegment(1) === 'configuracoes' ? 'active' : '' ?>">
                     <i class="bi bi-gear-fill"></i><span class="ms-2">Configurações</span>
                 </a>
             </li>
         </ul>
+        <a href="/logout" class="btn btn-danger d-flex align-items-center gap-2 movimento-btn">
+            <i class="bi bi-arrow-left-circle"></i>
+            <span>Sair</span>
+        </a>
     </div>
 </body>
 </html>

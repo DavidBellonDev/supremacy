@@ -19,7 +19,14 @@
 
             <!-- Conteúdo principal -->
             <main class="col-md-9 col-lg-10 p-4 conteudo">
-                <h3>Home</h3>
+                <div class="row">
+                    <div class="col-md-9">
+                        <h3>Home</h3>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <label>Bem-vindo(a) <?= session()->get('nome'). " " . session()->get('sobrenome')?></label>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

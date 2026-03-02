@@ -1,23 +1,7 @@
 $(document).ready(function() {
 
-    //Máscaras para campo CPF, CNPJ, CEP, Telefone e Celular
-    // CPF
-    $('#cpf').mask('000.000.000-00');
-
-    // CNPJ
-    $('#cnpj').mask('00.000.000/0000-00');
-
-    // CEP
-    $('#cep').mask('00000-000');
-
-    //RG
-    $('#rg').mask('00.000.000-0');
-
-    // Telefone fixo
-    $('#telefone').mask('(00) 0000-0000');
-
-    // Celular (com 9 dígitos)
-    $('#celular').mask('(00) 00000-0000');
+    //Função para carregar máscaras
+    carregarMascaras();
 
     // Click para salvar o cliente
     $('#salvarCliente').on('click', function (e) {
@@ -56,32 +40,73 @@ $(document).ready(function() {
                                 type: "GET",
                                  dataType: 'json',
                                 success: function (res) {
-                                    Swal.fire('Restaurado!', res.mensagem, 'success').then(() => {
-                                        window.location.href = "/clientes";
-                                    });
+                                    if(res.status === 'success'){
+                                        Swal.fire('Restaurado!', res.mensagem, 'success').then(() => {
+                                            window.location.href = "/clientes";
+                                        });
+                                    }else if(res.status === 'error'){
+                                        Swal.fire('Erro!', res.mensagem, 'error');
+                                    }
                                 }
                             });
                         }
                     });
-                }else {
-                    let erros = '';
-                    $.each(response.errors, function(campo, erro) {
-                        erros += erro + '\n';
-                    });
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: erros
-                    });
                 }
             },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: 'Falha na comunicação com o servidor.'
-                });
+            error: function(xhr) { // Erros 
+                   
+                carregarMascaras(); //Função para carregar máscaras
+                
+                if (!xhr.responseJSON) {
+                    Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                    return;
+                }
+
+                const response = xhr.responseJSON;
+
+                //Erro de Validação (ValidationException)
+                if (response.status === 'validation_error') {
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
+                    $.each(response.errors, function (campo, mensagem) {
+                        const input = $('[name="' + campo + '"]');
+                        input.addClass('is-invalid');
+                        input.after('<div class="invalid-feedback">' + mensagem + '</div>');
+                    });
+
+                    return;
+                }
+
+                // Erro de Regra/Sistema
+                if (response.errors && response.errors._global) {
+                    Swal.fire('Erro', response.errors._global, 'error');
+                    return;
+                }
+
+                Swal.fire('Erro', response.mensagem || 'Erro inesperado', 'error');
             }
         });
     });
+
+    function carregarMascaras(){
+        //Máscaras para campo CPF, CNPJ, CEP, Telefone e Celular
+        // CPF
+        $('#cpf').mask('000.000.000-00');
+
+        // CNPJ
+        $('#cnpj').mask('00.000.000/0000-00');
+
+        // CEP
+        $('#cep').mask('00000-000');
+
+        //RG
+        $('#rg').mask('00.000.000-0');
+
+        // Telefone fixo
+        $('#telefone').mask('(00) 0000-0000');
+
+        // Celular (com 9 dígitos)
+        $('#celular').mask('(00) 00000-0000');
+    }
 });

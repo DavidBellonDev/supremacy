@@ -16,7 +16,6 @@
             <aside class="col-md-3 col-lg-2 bg-dark text-white min-vh-100 p-3">
                 <?= $this->include('menu/_menu'); ?>
             </aside>
-
             <!-- Conteúdo principal -->
             <main class="col-md-9 col-lg-10 p-4 conteudo">
                 <div class="row mb-4">
@@ -24,7 +23,7 @@
                         <h3>Cliente</h3>
                     </div>
                     <div class="col-3">
-                         <button id="salvarCliente" class="form-control btn btn-danger">Salvar Cliente</button>
+                        <button id="salvarCliente" class="form-control btn btn-danger">Salvar Cliente</button>
                     </div>
                 </div>
                 <?= form_open('clientes/salvar', ['id' => 'formCliente']) ?>
@@ -32,7 +31,7 @@
                         <?php if (!empty($cliente)): ?>
                             <input type="hidden" name="id" value="<?= $cliente->id ?>">
                         <?php endif; ?>
-                        <input type="text" name="id_empresa" value="1" hidden>
+                        <input type="text" name="id_empresa" value="<?= session()->get('id_empresa') ?>" hidden>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="nome" class="form-control-label">Nome</label>
