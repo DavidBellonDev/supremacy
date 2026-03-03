@@ -3,7 +3,6 @@
 namespace App\Services;
 use App\Models\ClienteModel;
 use DomainException;
-use DOMAttr;
 use App\Exceptions\ValidationException;
 
 class ClienteService{

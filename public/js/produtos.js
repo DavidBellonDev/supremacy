@@ -57,12 +57,21 @@ document.addEventListener('DOMContentLoaded', function () {
                             Swal.fire('Excluído!', response.mensagem, 'success');
                             // Recarrega os dados sem reload da página
                             $('#listaProdutos').DataTable().ajax.reload(null, false); 
-                        }else {
-                            //Alert de erro
-                            Swal.fire('Erro!', response.mensagem, 'error');
                         }
                     },
-                    error: function () {
+                    error: function (xhr) {
+                        if(!xhr.responseJSON){
+                            Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                            return;
+                        }
+
+                        const response = xhr.responseJSON;
+                        //Erro de Regra/Sistema
+                        if(response.errors && response.errors._global){
+                            Swal.fire('Erro', response.errors._global, 'error');
+                            return;
+                        }
+                        
                         Swal.fire('Erro!', 'Não foi possível excluir o produto.', 'error');
                     }
                 });

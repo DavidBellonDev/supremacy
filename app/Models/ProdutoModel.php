@@ -27,7 +27,7 @@ class ProdutoModel extends Model
     protected $validationRules      = [
         'id' => 'permit_empty|is_natural_no_zero',
         'id_empresa'=> 'required|is_natural_no_zero',
-        'codigo' => 'required|max_length[15]',
+        'codigo' => 'required|max_length[15]|is_unique[produtos.codigo,id,{id}]',
         'descricao' => 'required|max_length[50]',
         'descricao_adicional' => 'max_length[300]',
         'observacao' => 'max_length[150]',
@@ -36,6 +36,7 @@ class ProdutoModel extends Model
        'codigo' => [
             'required'   => 'O campo Código é obrigatório',
             'max_length' => 'O campo Código deve ter no máximo 15 caracteres',
+            'is_unique' => 'Já existe um cadastrado com esse Código ',
         ],
         'descricao' => ['required' => 'O campo Descrição é obrigatório',
             'max_length' => 'O campo Descrição deve ter no máximo 50 caracteres', 

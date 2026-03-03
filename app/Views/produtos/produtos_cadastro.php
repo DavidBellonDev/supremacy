@@ -32,7 +32,7 @@
                         <?php if(!empty($produto)): ?>
                             <input type="hidden" name="id" value="<?= $produto->id ?>">
                         <?php endif; ?>    
-                        <input type="text" name="id_empresa" value="1" hidden>
+                        <input type="text" name="id_empresa" value=<?= esc(session()->get('id_empresa')) ?> hidden>
                         <div class="row">
                             <div class="form-group col-md-3">
                                 <label for="codigo" class="form-control-label">Código</label>
@@ -44,7 +44,7 @@
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="preco" class="form-control-label">Preço</label>
-                                <input type="text" name="preco" id="preco" placeholder="Preço" class="form-control money" inputmode="numeric" value="<?= $preco ?? ''?>">
+                                <input type="text" name="preco" id="preco" placeholder="Preço" class="form-control money" inputmode="numeric" data-preco=<?= $preco ?? '' ?> value="<?= $preco ?? ''?>">
                             </div>
                         </div>
                         <div class="row mt-3">
@@ -58,11 +58,11 @@
                         <div class="row mt-3">
                             <div class="form-group col-md-3">
                                 <label for="estoque_minimo" class="form-control-label">Estoque Mínimo</label>
-                                <input type="text" name="estoque_minimo" id="estoque_minimo" placeholder="Estoque Mínimo" class="form-control estoque" value="<?= $estoque_minimo  ?? ''?>">
+                                <input type="text" name="estoque_minimo" id="estoque_minimo" data-estoque_minimo=<?= $estoque_minimo ?? '' ?> placeholder="Estoque Mínimo" class="form-control estoque" value="<?= $estoque_minimo  ?? ''?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="estoque_atual" class="form-control-label">Estoque Atual</label>
-                                <input type="text" name="estoque_atual" id="estoque_atual" placeholder="Estoque Atual" class="form-control estoque" value="<?= $estoque_atual  ?? ''?>">
+                                <input type="text" name="estoque_atual" id="estoque_atual" data-estoque_atual=<?= $estoque_atual ?? '' ?> placeholder="Estoque Atual" class="form-control estoque" value="<?= $estoque_atual  ?? ''?>">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="unidade" class="form-control-label">Unidade</label>
@@ -75,7 +75,7 @@
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="custo" class="form-control-label">Custo</label>
-                                <input type="text" name="custo" id="custo" placeholder="Custo" class="form-control money" value="<?= $custo ?? ''?>">
+                                <input type="text" name="custo" id="custo" data-custo=<?= $custo ?? '' ?> placeholder="Custo" class="form-control money" value="<?= $custo ?? ''?>">
                             </div>
                         </div>
                         <div class="row mt-3">
@@ -87,7 +87,7 @@
                         <div class="row mt-3">
                             <div class="form-check">
                                 <input type="hidden" name="ativo" value="0">
-                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" <?= (isset($produto) && $produto->ativo) ? 'checked' : '' ?>>
+                                <input class="form-check-input" type="checkbox" id="ativo" name="ativo" value="1" <?= (isset($produto) && $produto->ativo) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="ativo">Produto Ativo?</label>
                             </div>
                         </div>

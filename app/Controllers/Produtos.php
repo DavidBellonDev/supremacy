@@ -2,7 +2,9 @@
 
 namespace app\Controllers;
 use App\Controllers\BaseController;
+use App\Exceptions\ValidationException;
 use App\Models\ProdutoModel;
+use App\Services\ProdutoService;
 
 class Produtos extends BaseController{
 
@@ -21,81 +23,81 @@ class Produtos extends BaseController{
 
         $unidades = ['UN' => 'Unidade (UN)', 'KG' => 'Quilograma (KG)', 'MT' => 'Metro (MT)', 'LT' => 'Litros (LT)', 'M2' => 'Metro Quadrado (M2)', 'M3' => 'Metro Cúbico (M3)', 'PR' => 'Par (PR)', 'KW' => 'Quilowatt hora (KW)'];
 
+        //Se não tiver id, então é um cadastro novo
         if($id === null || $id === 0){
             return view('produtos/produtos_cadastro', ['unidades' => $unidades]);
         }
 
-        $produto = $this->produtoModel->find($id);
-        if(!$produto){
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'status'   => 'error',
-                    'mensagem' => 'Produto não encontrado'
-                ]);
-            }
+        try{
+            //Validar id
+            $service = new ProdutoService();
+            $produto = $service->produtos_cadastro($id, session()->get('id_empresa'));
 
-            // Se for acesso direto pela URL, mostra uma página de erro
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Produto não encontrado");
+            //Formantando o numero de casas decimais de acordo com os parametros do usuario
+            $precoVenda = $produto->preco;
+            $precoCusto = $produto->custo;
+            $estoqueAtual = $produto->estoque_atual;
+            $estoqueMinimo = $produto->estoque_minimo;
+
+            return view('produtos/produtos_cadastro', ['produto' => $produto, 'unidades' => $unidades, 'preco' => $precoVenda, 'custo' => $precoCusto, 'estoque_atual' => $estoqueAtual,  'estoque_minimo' => $estoqueMinimo]);
+
+        }catch(\DomainException $e){
+            //Envia para página padrão 'Não encontrada'
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }catch(\Throwable $e){
+            log_message('error', json_encode(['acao' => 'Produto Cadastro', 'produto_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
+            ]);
         }
-        //Formantando o numero de casas decimais de acordo com os parametros do usuario
-        $precoVenda = number_format((float) $produto->preco, 2, ',', '.');
-        $precoCusto = number_format((float) $produto->custo, 2, ',', '.');
-        $estoqueAtual = number_format((float) $produto->estoque_atual, 2, ',', '.');
-        $estoqueMinimo = number_format((float) $produto->estoque_minimo, 2, ',', '.');
-
-        return view('produtos/produtos_cadastro', ['produto' => $produto, 'unidades' => $unidades, 'preco' => $precoVenda, 'custo' => $precoCusto, 'estoque_atual' => $estoqueAtual,  'estoque_minimo' => $estoqueMinimo]);
     }
 
     //Função para salvar o Produto no Banco de Dados
     public function salvar(){
-        $produtoModel = new ProdutoModel();
         $data = $this->request->getPost(); //Pega os dados enviados no formulário
-        $id = $this->request->getPost('id'); // Pega apenas o Id enviado no formulário
-        $codigo = $this->request->getPost('codigo'); // Pega apenas o Id enviado no formulário=
+       
+        try{
+            $service = new ProdutoService();
+            $retorno = $service->salvar($data, session()->get('id_empresa'));
 
-        //Se o id vier vazio, é produto novo
-        if(empty($id)){
-            //Verifica se existe um produto com esse codigo, mesmo excluído
-            $produtoExistente = $this->produtoModel->withDeleted()->where('codigo', $codigo)->first(); 
-
-            //Se existe...
-            if($produtoExistente){
-                if ($produtoExistente->deletado_em !== null) { //Se ele está excluído atualmente...
-                    return $this->response->setJSON([ //Daremos opção de restaurar
-                        'status'   => 'restore',
-                        'mensagem' => 'Esse Código já existe e está excluído. Deseja restaurar o cadastro?',
-                        'id'       => $produtoExistente->id
-                    ]);
-                }
-                //Existe um produto com esse codigo
-                return $this->response->setJSON([
-                    'status'   => 'error',
-                    'errors' => ['codigo' => 'Já existe um Produto com esse código.']
+            if(is_array($retorno) && $retorno['status'] === 'restore'){
+                return $this->response->setStatusCode(200)->setJSON([ //StatusCode 200 porque não há erro
+                    'status'   => 'restore',
+                    'mensagem' => 'Esse produto já existe e está excluído. Deseja restaurar o cadastro?',
+                    'id'       => $retorno['id']
                 ]);
             }
-            $retorno = $produtoModel->insert($data);
-        }else{ // Atualiza produto
-            $retorno = $produtoModel->update($id, $data);
-        }
-
-        //Verifica se houve erros na validação
-        if($retorno === false){
-            //Retorna os erros de validação
-            return $this->response->setJSON([
+            return $this->response->setStatusCode(200)->setJSON([
+                'status' => 'success',
+                'mensagem' => 'Produto salvo com sucesso!'
+            ]);
+        }catch (ValidationException $e) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'validation_error',
+                'errors' => $e->getErrors()
+            ]);    
+        }catch(\DomainException $e){
+            return $this->response->setStatusCode(404)->setJSON([
                 'status' => 'error',
-                'errors' => $produtoModel->errors()
+                'errors' => [
+                    '_global' => $e->getMessage()
+                ]
+            ]);
+        }catch(\Throwable $e){
+            log_message('error', json_encode(['acao' => 'Salvar Produto', 'produto_id' => $this->request->getPost('id'), 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
             ]);
         }
-        //Retorno com sucesso
-        return $this->response->setJSON([
-            'status' => 'success',
-            'mensagem' => 'Produto salvo com sucesso!'
-        ]);
     }
 
     //Listar os produtos cadastrados
     public function listar(){
-        $id_empresa = 1;
+        $id_empresa = session()->get('id_empresa'); //Pega o id da empresa na sessão
 
         $atributos = ['id', 'id_empresa', 'codigo', 'descricao', 'preco', 'unidade','estoque_atual', 'ativo'];
 
@@ -117,33 +119,28 @@ class Produtos extends BaseController{
 
     //Função para Excluir o produto
     public function excluir(int $id = null){
-
-        $data = [];
-        if($id === null){
-            $data = [
-                'status' => 'error',
-                'mensagem' => 'Id do produto não informado',
-            ];
-        }
-        //Informado o Id, então busca o produto
-        $produto = $this->produtoModel->find($id);
-
-        //Se não encontrar o produto
-        if (!$produto) {
-            $data = [
-                'status' => 'error',
-                'mensagem' => 'Produto não encontrado',
-            ];
-        }
-
-        //Tudo certo, deletar produto
-        $this->produtoModel->delete($id);
-        $data = [
+        try{
+            $service = new ProdutoService();
+            $service->excluir($id, session()->get('id_empresa')); //Chamar o método excluir do service
+            return $this->response->setJSON([
                 'status' => 'success',
-                'mensagem' => 'Produto excluído com sucesso',
-        ];
+                'mensagem' => 'Produto excluído com sucesso!'
+            ]);
+        }catch(\DomainException $e){ //Erro esperado
+            return $this->response->setStatusCode(404)->setJSON([
+                'status' => 'error',
+                'errors' => [
+                    '_global' => $e->getMessage()
+                ]
+            ]);
+        }catch(\Throwable $e){ //Erro inesperado
+            log_message('error', json_encode(['acao' => 'Excluir Produto', 'produto_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
 
-        return $this->response->setJSON($data);
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'mensagem' => 'Erro interno'
+            ]);
+        }
     }
 
     //Função para restaurar um produto excluido
@@ -157,5 +154,4 @@ class Produtos extends BaseController{
         return $this->response->setJSON($data);
     }
 }
-
 ?>

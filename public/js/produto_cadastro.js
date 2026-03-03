@@ -3,12 +3,7 @@ $(document).ready(function() {
     //Click para salvar o Produto
     $('#salvarProduto').on('click', function (e) {
         e.preventDefault();
-        //Retirar a mascara monetária dos campos Preco e Custo
-        $('.money, .estoque').each(function () {
-            let valor = $(this).val();
-            valor = valor.replace(/\./g, '').replace(',', '.');
-            $(this).val(valor);
-        });
+        removerMascaras();
 
         $.ajax({
             type: 'post',
@@ -48,24 +43,40 @@ $(document).ready(function() {
                             });
                         }
                     });
-                }else {
-                    let erros = '';
-                    $.each(response.errors, function(campo, erro) {
-                        erros += erro + '\n';
-                    });
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: erros
-                    });
                 }
             },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: 'Falha na comunicação com o servidor.'
-                });
+            error: function(xhr) {
+
+                iniciarMascaras();
+
+                if (!xhr.responseJSON) {
+                    Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                    return;
+                }
+
+                const response = xhr.responseJSON;
+
+                //Erro de Validação (ValidationException)
+                if (response.status === 'validation_error') {
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
+                    $.each(response.errors, function (campo, mensagem) {
+                        const input = $('[name="' + campo + '"]');
+                        input.addClass('is-invalid');
+                        input.after('<div class="invalid-feedback">' + mensagem + '</div>');
+                    });
+
+                    return;
+                }
+
+                // Erro de Regra/Sistema
+                if (response.errors && response.errors._global) {
+                    Swal.fire('Erro', response.errors._global, 'error');
+                    return;
+                }
+
+                Swal.fire('Erro', response.mensagem || 'Erro inesperado', 'error');
             }
         });
     });
