@@ -54,12 +54,16 @@
                             <div class="row mt-3">
                                 <div class="form-group col-md-6">
                                     <label for="nome_cliente" class="form-control-label">Cliente</label>
-                                    <input type="text" id="nome_cliente" name="nome_cliente" class="form-control" placeholder="Digite o nome ou CPF" value="<?= $pedido->nome_cliente ?? '' ?>">
-                                    <input type="hidden" id="id" name="id" value="<?= $pedido->id ?? '' ?>">
-                                    <input type="hidden" id="id_cliente" name="id_cliente" value="<?= $pedido->id_cliente ?? '' ?>">
-                                    <input type="hidden" id="id_empresa" name="id_empresa" value="1">
+                                    <div class="input-group">
+                                        <input type="text" id="nome_cliente" name="nome_cliente" class="form-control" placeholder="Digite o nome ou CPF" value="<?= $pedido->nome_cliente ?? '' ?>">
+                                        <input type="hidden" id="id" name="id" value="<?= $pedido->id ?? '0' ?>">
+                                        <input type="hidden" id="id_cliente" name="id_cliente" value="<?= $pedido->id_cliente ?? '' ?>">
+                                        <button class="btn btn-secondary" type="button" id="editar_cliente">Editar</button>
+                                    </div>
+                                    <input type="hidden" id="id_empresa" name="id_empresa" value="<?= esc(session()->get('id_empresa')) ?>">
                                     <input type="hidden" id="cpf_cliente" name="cpf_cliente" value="<?= $pedido->cpf_cliente ?? '' ?>">
                                     <input type="hidden" id="cnpj_cliente" name="cnpj_cliente" value="<?= $pedido->cnpj_cliente ?? '' ?>">
+                                    <input type="hidden" id="finalizado" name="finalizado" value="<?= $pedido->finalizado ?? '' ?>">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="status" class="form-control-label">Status</label>
@@ -70,8 +74,10 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label for="pedido" class="form-control-label">Pedido</label>
-                                    <input type="text" name="pedido" id="pedido" placeholder="Pedido" class="form-control" value="<?= $pedido->pedido ?? '' ?>">
+                                    <?php if(isset($pedido->id) && $pedido->id > 0): ?>
+                                        <label for="pedido" class="form-control-label">Pedido</label>
+                                    <?php endif; ?>
+                                    <input type="<?= (isset($pedido->id) && $pedido->id > 0) ? 'text' : 'hidden' ?>" name="pedido" id="pedido" placeholder="Pedido" class="form-control" value="<?= $pedido->pedido ?? '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="row mt-3">
@@ -155,14 +161,14 @@
                         <?= csrf_field() ?>
                         <input type="hidden" id="id_item" name="id_item">
                         <input type="hidden" name="id_pedido" id="id_pedido" value="<?= $pedido->id ?? '' ?>">
-                        <input type="hidden" name="id_empresa" id="id_empresa" value="<?= $pedido->id_empresa ?? '' ?>">
+                        <input type="hidden" name="id_empresa" id="id_empresa" value="<?= esc(session()->get('id_empresa'))?>">
                         <input type="hidden" name="id_produto" id="id_produto" value="0">
                         <input type="hidden" name="id_usuario" id="id_usuario" value="1">
                         <input type="hidden" name="nome_usuario" id="nome_usuario" value="David">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label>Produto</label>
-                                <div class="input-group mb-3">
+                                <div class="input-group">
                                     <input type="text" id="descricao_produto" name="descricao_produto" class="form-control" placeholder="Produto" value="<?= $item->descricao_produto ?? '' ?>">
                                     <button class="btn btn-outline-secondary" type="button" id="editar_produto">Editar</button>
                                 </div>
@@ -202,7 +208,7 @@
                     <?= form_close(); ?>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-danger" id="cancelarItem" data-bs-dismiss="modal">
                         Cancelar
                     </button>
                     <button type="button" class="btn btn-success" id="salvarItem">
@@ -238,10 +244,16 @@
     <script src="<?= base_url('js/pedidos_cadastro.js') ?>"></script>
 
     <script>
+        let finalizado = $('#finalizado').val();
         $(document).ready(function () {
             var id = $('#id').val();
             $('#listaItens').DataTable({
-                ajax: "<?= site_url("itens/listar/") ?>" + id,
+                ajax: {
+                    url: "<?= site_url("itens/listar") ?>",
+                    data: function(d){
+                        d.id = $('#id').val();
+                    }
+                },
                 responsive: false, // melhor dentro de tab
                 autoWidth: false,
                 columns: [
@@ -301,14 +313,18 @@
                     },
                     {data: 'id', //Botões de Ação
                         render: function (data, type, row) {
-                            return `
-                                <button class="btn btn-sm btn-warning editar" id="editarItem" data-id="${data}" data-descricao_produto="${row.descricao_produto}" data-valor_modal="${row.valor_modal}" data-quantidade_modal="${row.quantidade_modal}" data-desconto_modal="${row.desconto_modal}" data-observacao="${row.observacao}" data-total_modal="${row.total_modal}">
+                            let botoes =  `
+                                <button class="btn btn-sm btn-warning editar me-1" id="editarItem" data-id="${data}" data-descricao_produto="${row.descricao_produto}" data-valor_modal="${row.valor_modal}" data-quantidade_modal="${row.quantidade_modal}" data-desconto_modal="${row.desconto_modal}" data-observacao="${row.observacao}" data-total_modal="${row.total_modal}">
                                     <i class="bi bi-pencil-fill"></i> Editar
-                                </button>
-                                <button class="btn btn-sm btn-danger excluir" data-id="${data}" data-descricao_produto="${row.descricao_produto}" data-pedido="${row.pedido}">
-                                    <i class="bi bi-trash-fill"></i> Excluir
-                                </button>
-                            `;
+                                </button>`
+                            if(finalizado != '1'){
+                                botoes += 
+                                    `<button class="btn btn-sm btn-danger excluir" data-id="${data}" data-descricao_produto="${row.descricao_produto}" data-pedido="${row.pedido}">
+                                        <i class="bi bi-trash-fill"></i> Excluir
+                                    </button>
+                                `;
+                            }
+                            return botoes;
                         }
                     }
                 ],
@@ -324,11 +340,15 @@
                     "<'row'<'col-12'tr>>" +
                     "<'row mt-2'<'col-md-6 novoItem'><'col-md-6'p>>",
                 initComplete: function () {
-                    $('.novoItem').html(`
-                        <button type="button" class="btn btn-success" id="novoItem">
-                            <i class="bi bi-plus-circle"></i> Novo Item
-                        </button>
-                    `);
+                   
+                    console.log('Finalizado: ' + finalizado);
+                    if(finalizado != '1'){
+                        $('.novoItem').html(`
+                            <button type="button" class="btn btn-success" id="novoItem">
+                                <i class="bi bi-plus-circle"></i> Novo Item
+                            </button>
+                        `);
+                    }
                 }
             });
             $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
@@ -336,6 +356,5 @@
             });
         });
     </script>
-
 </body>
 </html>

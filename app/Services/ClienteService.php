@@ -14,10 +14,10 @@ class ClienteService{
     }
 
     //Função para abrir o cadastro de clientes
-    public function clientes_cadastro(int $id, int $id_empresa){
+    public function clientes_cadastro(int $id, int $idEmpresa){
 
         //Verificar se o cadastro pertence a empresa do usuário logado
-        $cliente = $this->clienteModel->where('id_empresa', $id_empresa)->find($id);
+        $cliente = $this->clienteModel->where('id_empresa', $idEmpresa)->find($id);
 
         //Se não pertencer, dar mensagem de erro
         if(!$cliente){
@@ -31,7 +31,7 @@ class ClienteService{
     public function salvar(array $data, int $idEmpresaSession){
 
         //Compara os id_empresa recebidos 
-        if($data['id_empresa']!= $idEmpresaSession){
+        if($data['id_empresa'] != $idEmpresaSession){
             throw new DomainException('Não posso prosseguir com o cadastro por inconsistência nos dados');
         }
 

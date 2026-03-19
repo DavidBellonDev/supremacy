@@ -43,14 +43,16 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('/pedidos/salvar', 'Pedidos::salvar');
     $routes->get('/pedidos/listar', 'Pedidos::listar');
     $routes->delete('/pedidos/excluir/(:num)', 'Pedidos::excluir/$1');
+    $routes->post('/pedidos/finalizar/(:num)', 'Pedidos::finalizar/$1');
+    $routes->get('pedidos/pdf/(:num)', 'Pedidos::gerarPDF/$1');
 });
 
 //Itens
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('/itens/salvar', 'Itens::salvar');
-    $routes->get('/itens/listar/(:num)', 'Itens::listar/$1');
+    $routes->get('/itens/listar', 'Itens::listar');
     $routes->get('/itens/buscar_itens_pedido', 'Itens::buscar_itens_pedido');
-    $routes->delete('/itens/excluir/(:num)', 'Itens::excluir/$1');
+    $routes->delete('/itens/excluir/(:num)/(:num)', 'Itens::excluir/$1/$2');
 });
 
 //Produtos

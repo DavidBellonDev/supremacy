@@ -1,5 +1,44 @@
 $(document).ready(function() {
 
+    //Buscar dados do pedido
+    let id = $('#id').val();
+    let finalizado = $('#finalizado').val();
+
+    if(id > 0){ // Se for uma edição de pedido
+        $("#nome_cliente").prop('readonly', true); //Bloquear campo de cliente
+        $("#editar_cliente").prop('disabled', false); //Liberar botão de editar cliente
+    }else{
+        //Não mostrar a aba de itens
+        $('#itens').hide();
+    }
+
+    //Pedido finalizado bloqueia todos campos e apaga botão salvar pedido/item e add item
+    if(finalizado == 1){
+        $("#editar_cliente").prop('disabled', true); //Bloquear botão de editar cliente
+        $("#status").prop('readonly', true); 
+        $("#observacao").prop('readonly', true); 
+        $("#desconto").prop('readonly', true); 
+        $("#salvarPedido").hide(); 
+    }
+
+    //Clique para editar o cliente do pedido
+    $(document).on('click', '#editar_cliente', function(){
+
+        $("#nome_cliente").prop('readonly', false); //Liberar campo de cliente
+        $("#editar_cliente").prop('disabled', true); //Bloquear botão de editar cliente
+
+        //Limpar os dados do cliente
+        $("#id_cliente").val(0);
+        $("#nome_cliente").val('');
+        $("#cpf_cliente").val('');
+        $("#cnpj_cliente").val('');
+        $("#endereco_cliente").val('');
+        $("#numero_cliente").val('');
+        $("#complemento_cliente").val('');
+        $("#cidade_cliente").val('');
+        $("#estado_cliente").val('');
+    });
+
     //Abrir modal para novo item
     $(document).on('click', '#novoItem', function () {
         $('#modalNovoItem').modal('show'); //Abrir o modal
@@ -46,6 +85,17 @@ $(document).ready(function() {
         $("#descricao_produto").prop('readonly', true);
         //Liberar Botão para editar item
         $("#editar_produto").prop('disabled', false);
+
+        if(finalizado == 1){
+            //Bloquear Botão para editar item
+            $("#editar_produto").prop('disabled', true);
+            $("#valor_item").prop('readonly', true);
+            $("#quantidade_item").prop('readonly', true);
+            $("#desconto_item").prop('readonly', true);
+            $("#total_item").prop('readonly', true);
+            $("#observacao_item").prop('readonly', true);
+            $("#salvarItem").hide();
+        }
     });
 
     //Editar o produto do item atual
@@ -68,12 +118,7 @@ $(document).ready(function() {
     //Click para salvar o Pedido
     $('#salvarPedido').on('click', function (e) {
         e.preventDefault();
-        //Retirar a mascara monetária dos campos Total e Desconto
-        $('.money').each(function () {
-            let valor = $(this).val();
-            valor = valor.replace(/\./g, '').replace(',', '.');
-            $(this).val(valor);
-        });
+        removerMascaras();
         $.ajax({
             type: 'post',
             url: $('#formPedido').attr('action'), // Rota definida no Routes.php
@@ -86,26 +131,49 @@ $(document).ready(function() {
                         title: 'Sucesso',
                         text: response.mensagem
                     }).then(() => {
-                        window.location.href = "/pedidos";
-                    });
-                }else {
-                    let erros = '';
-                    $.each(response.errors, function(campo, erro) {
-                        erros += erro + '\n';
-                    });
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: erros
+                        if(response.acao == 'criar'){
+                            //Pedido novo, abrir modal de itens
+                            $('#modalNovoItem').modal('show'); //Abrir o modal
+                            $('#id_pedido').val(response.idNovoPedido);
+                            $('#id').val(response.idNovoPedido);
+                            $('#pedido').val(response.numeroPedido);
+                            $('#itens').show();
+                        }else{
+                            window.location.href = "/pedidos";
+                        }
                     });
                 }
             },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: 'Falha na comunicação com o servidor.'
-                });
+            error: function(xhr) {
+                iniciarMascaras();
+                if (!xhr.responseJSON) {
+                    Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                    return;
+                }
+
+                const response = xhr.responseJSON;
+
+                //Erro de Validação (ValidationException)
+                if (response.status === 'validation_error') {
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
+                    $.each(response.errors, function (campo, mensagem) {
+                        const input = $('[name="' + campo + '"]');
+                        input.addClass('is-invalid');
+                        input.after('<div class="invalid-feedback">' + mensagem + '</div>');
+                    });
+
+                    return;
+                }
+
+                // Erro de Regra/Sistema
+                if (response.errors && response.errors._global) {
+                    Swal.fire('Erro', response.errors._global, 'error');
+                    return;
+                }
+
+                Swal.fire('Erro', response.mensagem || 'Erro inesperado', 'error');
             }
         });
     });
@@ -113,12 +181,7 @@ $(document).ready(function() {
     //Click para salvar o Item
     $('#salvarItem').on('click', function (e) {
         e.preventDefault();
-        //Retirar a mascara monetária dos campos Valor, Total e Desconto
-        $('.money').each(function () {
-            let valor = $(this).val();
-            valor = valor.replace(/\./g, '').replace(',', '.');
-            $(this).val(valor);
-        });
+        removerMascaras();
         $.ajax({
             type: 'post',
             url: $('#formItem').attr('action'), // Rota definida no Routes.php
@@ -126,6 +189,10 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
+                    //Remove efeitos de erro caso tenha ocorrido antes
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
                     $('#modalNovoItem').modal('hide'); //Fechar modal
                     Swal.fire({
                         icon: 'success',
@@ -146,32 +213,57 @@ $(document).ready(function() {
                                 maximumFractionDigits: 2
                         }));
                     });
-                }else {
-                    $('#modalNovoItem').modal('hide'); //Fechar modal
-                    let erros = '';
-                    $.each(response.errors, function(campo, erro) {
-                        erros += erro + '\n';
-                    });
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: erros
-                    });
                 }
             },
-            error: function() {
-                $('#modalNovoItem').modal('hide'); //Fechar modal
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: 'Falha na comunicação com o servidor.'
-                });
+            error: function(xhr) {
+                iniciarMascaras();
+                if (!xhr.responseJSON) {
+                    Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                    return;
+                }
+                const response = xhr.responseJSON;
+                //Erro de Validação (ValidationException)
+                if (response.status === 'validation_error') {
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
+                    $.each(response.errors, function (campo, mensagem) {
+                        const input = $('[name="' + campo + '"]');
+                        input.addClass('is-invalid');
+                        if(campo == 'descricao_produto'){
+                            const btn = $('#editar_produto');
+                            btn.after('<div class="invalid-feedback">' + mensagem + '</div>');
+                        }else{
+                            input.after('<div class="invalid-feedback">' + mensagem + '</div>');
+                        }
+                    });
+
+                    return;
+                }
+
+                // Erro de Regra/Sistema
+                if (response.errors && response.errors._global) {
+                    Swal.fire('Erro', response.errors._global, 'error');
+                    return;
+                }
+
+                Swal.fire('Erro', response.mensagem || 'Erro inesperado', 'error');
             }
         });
     });
 
+    //Click para cancelar o Item
+    $('#cancelarItem').on('click', function (e) {
+        e.preventDefault();
+        //Remove efeitos de erro caso tenha ocorrido antes
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        $('#modalNovoItem').modal('hide'); //Fechar modal
+    });
+
     //Clique no botão Excluir o Item
     $('#listaItens').on('click', '.excluir', function () {
+        let idPedido = $('#id_pedido').val();
         let id = $(this).data('id')
         let descricao_produto = $(this).data('descricao_produto')
         // confirmar exclusão
@@ -187,7 +279,7 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "/itens/excluir/" + id,
+                    url: "/itens/excluir/" + id + "/" + idPedido,
                     type: "DELETE",
                     success: function (response) {
                         if (response.status === 'success') {
@@ -206,13 +298,21 @@ $(document).ready(function() {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
                             }));
-                        }else {
-                            //Alert de erro
-                            Swal.fire('Erro!', response.mensagem, 'error');
                         }
                     },
-                    error: function () {
-                        Swal.fire('Erro!', 'Não foi possível excluir o Item', 'error');
+                    error: function (xhr) {
+                        if (!xhr.responseJSON) {
+                            Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                            return;
+                        }
+                        const response = xhr.responseJSON;
+                         // Erro de Regra/Sistema
+                        if (response.errors && response.errors._global) {
+                            Swal.fire('Erro', response.errors._global, 'error');
+                            return;
+                        }
+
+                        Swal.fire('Erro!', 'Não foi possível excluir o item.', 'error');
                     }
                 });
             }
@@ -237,6 +337,8 @@ $(document).ready(function() {
                 });
             },
             select: function (event, ui) {
+                $("#nome_cliente").prop('readonly', true); //Bloquear campo de cliente
+                $("#editar_cliente").prop('disabled', false); //Liberar botão de editar cliente
                 $("#nome_cliente").val(ui.item.value);
                 $("#cpf_cliente").val(ui.item.cpf);
                 $("#cnpj_cliente").val(ui.item.cnpj);

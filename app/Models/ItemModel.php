@@ -25,12 +25,8 @@ class ItemModel extends Model
     // Validation
     protected $validationRules      = [
         'id' => 'permit_empty|is_natural_no_zero',          //permit_empty = pode ir vazio, exemp. INSERT
-        'id_pedido'=> 'required|is_natural_no_zero',        //is_natural_no_zero = se preenchido deve ser > 0
+        'id_pedido'=> 'is_natural_no_zero',        //is_natural_no_zero = se preenchido deve ser > 0
         'descricao_produto' => 'required|max_length[150]',  //required = Valor obrigatório
-        'id_produto' => 'required|is_natural_no_zero',
-        'id_empresa'=> 'required|is_natural_no_zero',
-        'id_usuario'=> 'required|is_natural_no_zero',
-        'nome_usuario'=> 'required',
         'valor' => 'required|greater_than[0]',
         'quantidade' => 'required|greater_than[0]',
         'total' => 'required|greater_than[0]',

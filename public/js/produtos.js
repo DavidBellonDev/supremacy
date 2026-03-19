@@ -11,26 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
     //Botão para Editar o Produto
     $('#listaProdutos').on('click', '.editar', function () {
         let id = $(this).data('id');
-        $.ajax({
-            url: "/produtos/produtos_cadastro/" + id,
-            type: "GET",
-            dataType: "json",
-            success: function(response) {
-                if (response.status === 'error') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: response.mensagem
-                    });
-                }
-            },
-            error: function(xhr) {
-                // Se não for JSON, significa que retornou a view → redireciona
-                window.location.href = "/produtos/produtos_cadastro/" + id;
-            }
-        });
+        window.location.href = "/produtos/produtos_cadastro/" + id
     });
-
 
     //Botão para Excluir o Produto
     $('#listaProdutos').on('click', '.excluir', function () {

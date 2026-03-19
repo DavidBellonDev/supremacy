@@ -115,8 +115,8 @@
                                 <div class="btn-group" role="group">
                                     <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Mais</button>
                                     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                        <li><a class="dropdown-item" href="#">Finalizar</a></li>
-                                        <li><a class="dropdown-item" href="#">Gerar PDF</a></li>
+                                        <li><a class="dropdown-item finalizarPedido" data-id="${data}" data-pedido="${row.pedido}" data-cliente="${row.nome_cliente}">Finalizar</a></li>
+                                        <li><a class="dropdown-item gerarPDF" data-id="${data}">Gerar PDF</a></li>
                                     </ul>
                                 </div>
                             `;
@@ -124,8 +124,9 @@
                     }
                 ],
                 columnDefs: [
-                    { className: "text-center", targets: "_all" } // centraliza todas as colunas
+                    { className: "text-center", targets: "_all" } // centraliza todas as colunas 
                 ],
+                order: [[0, 'desc']],
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/pt-BR.json'
                 },

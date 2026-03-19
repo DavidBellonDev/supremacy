@@ -25,18 +25,35 @@ function formatarParaBR(valor) {
 
 // Receber os valores, formatar e inserir nos devidos campos
 function iniciarMascaras() {
-    let preco = $('#preco').data('preco');
+    let preco = $('#preco').val();
     $('#preco').val(formatarParaBR(preco));
 
-    let custo = $('#custo').data('custo');
+    let custo = $('#custo').val();
     $('#custo').val(formatarParaBR(custo));
 
-    let estoque_minimo = $('#estoque_minimo').data('estoque_minimo');
+    let estoque_minimo = $('#estoque_minimo').val();
     $('#estoque_minimo').val(formatarParaBR(estoque_minimo));
 
-    let estoque_atual = $('#estoque_atual').data('estoque_atual');
+    let estoque_atual = $('#estoque_atual').val();
     $('#estoque_atual').val(formatarParaBR(estoque_atual));
 
+    let desconto = $('#desconto').val();
+    $('#desconto').val(formatarParaBR(desconto));
+
+    let total = $('#total').val();
+    $('#total').val(formatarParaBR(total));
+
+    let valor = $('#valor_item').val();
+    $('#valor_item').val(formatarParaBR(valor));
+
+    let quantidade = $('#quantidade_item').val();
+    $('#quantidade_item').val(formatarParaBR(quantidade));
+
+    let desconto_item = $('#desconto_item').val();
+    $('#desconto_item').val(formatarParaBR(desconto_item));
+
+    let total_item = $('#total_item').val();
+    $('#total_item').val(formatarParaBR(total_item));
 }
 
 //Retirar a mascara monetária dos campos

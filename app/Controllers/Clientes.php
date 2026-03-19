@@ -31,6 +31,10 @@ class Clientes extends BaseController{
         }
 
         try{
+
+            //Teste de erro forçado
+            //throw new \Exception('Erro forçado para teste');
+
             //Validar id
             $service = new ClienteService();
             $cliente = $service->clientes_cadastro($id, session()->get('id_empresa'));
@@ -42,10 +46,7 @@ class Clientes extends BaseController{
         }catch (\Throwable $e) { //Erro inesperado...
             log_message('error', json_encode(['acao' => 'Clientes Cadastro', 'cliente_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
 
-            return $this->response->setStatusCode(500)->setJSON([
-                'status' => 'error',
-                'mensagem' => 'Erro interno'
-            ]);
+            throw $e;
         }
     }
     

@@ -29,6 +29,10 @@ class Produtos extends BaseController{
         }
 
         try{
+
+            //Teste de erro forçado
+            //throw new \Exception('Erro forçado para teste');
+
             //Validar id
             $service = new ProdutoService();
             $produto = $service->produtos_cadastro($id, session()->get('id_empresa'));
@@ -47,10 +51,7 @@ class Produtos extends BaseController{
         }catch(\Throwable $e){
             log_message('error', json_encode(['acao' => 'Produto Cadastro', 'produto_id' => $id, 'empresa_id' => session()->get('id_empresa'), 'erro' => $e->getMessage(),]));
 
-            return $this->response->setStatusCode(500)->setJSON([
-                'status' => 'error',
-                'mensagem' => 'Erro interno'
-            ]);
+            throw $e;
         }
     }
 

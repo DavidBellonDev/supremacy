@@ -25,11 +25,14 @@ class PedidoModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id' => 'permit_empty|is_natural_no_zero',
+        'id' => 'permit_empty|is_natural',
         'id_empresa'=> 'required|is_natural_no_zero',
+        'nome_cliente' => 'required',
         'observacao' => 'max_length[150]',
+        'pedido' => 'is_unique[pedidos.pedido,id,{id}]',
     ];
     protected $validationMessages   = [
+        'nome_cliente' => ['required' => 'Informe o cliente deste pedido', ],
         'observacao' => ['max_length' => 'O campo Observação deve ter no máximo 150 caracteres', ],
     ];
     protected $skipValidation       = false;

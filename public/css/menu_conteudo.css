@@ -11,3 +11,9 @@
     background: #37393aff;
     color: white;
 }
+
+
+.invalid-feedback {
+    min-height: 20px;
+}
+
